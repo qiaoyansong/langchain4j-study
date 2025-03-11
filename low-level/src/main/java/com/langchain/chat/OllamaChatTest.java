@@ -2,6 +2,7 @@ package com.langchain.chat;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
@@ -19,7 +20,36 @@ public class OllamaChatTest {
 
     public static void main(String[] args) {
 //        without_memory();
-        with_memory();
+//        with_memory();
+        with_system_message();
+    }
+
+    /**
+     * 使用ollama模仿对话 并且按照特朗普的语气
+     */
+    private static void with_system_message() {
+        ChatLanguageModel model = OllamaChatModel.builder()
+                .baseUrl("http://localhost:11434") // 本地ollama url
+                .modelName("qwen:4b") // 模型名称
+                .build();
+
+        Scanner scanner = new Scanner(System.in);
+        String message;
+        UserMessage userMessage;
+        AiMessage aiMessage;
+        List<ChatMessage> messages = new ArrayList<>();
+        messages.add(SystemMessage.from("假如你是特朗普，接下来你必须以特朗普的语气来进行对话"));
+        while (true) {
+            message = scanner.next();
+            if (message.equalsIgnoreCase("-1")) {
+                break;
+            }
+            userMessage = UserMessage.userMessage(message);
+            messages.add(userMessage);
+            aiMessage = model.chat(messages).aiMessage();
+            messages.add(aiMessage);
+            System.out.println(aiMessage.text());
+        }
     }
 
     /**

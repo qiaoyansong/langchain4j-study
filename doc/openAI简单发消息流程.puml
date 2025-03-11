@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor usr
+autonumber
+participant usr order 1
+participant system order 2
+
+system -> system: 构造模型
+note right
+为OpenAIModelTest
+end note
+group 构造模型
+system -> system: 构造OpenAiClient，OpenAiClient用于创建okHttpClient、以及使用反射创建openAiApi的实现类
+system -> system: defaultRequestParameters，即创建模型时候的参数，用于http调用大模型时候使用
+end
+
+
+user -> system: 你是谁
+system -> system: 根据入参消息以及创建模型的defaultRequestParameters构造ChatRequest
+system -> llm: 使用openAiApi调用大模型http接口
+llm --> system
+system --> user
+@enduml

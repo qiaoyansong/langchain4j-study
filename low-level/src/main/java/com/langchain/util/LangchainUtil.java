@@ -31,4 +31,8 @@ public class LangchainUtil {
             }
         }
     }
+
+    private LangchainUtil() {
+
+    }
 }
