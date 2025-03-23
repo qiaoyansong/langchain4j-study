@@ -1,0 +1,37 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor usr
+
+autonumber
+
+usr -> ai_service
+ai_service -> ai_service : 执行代理方法
+group 代理流程
+ai_service -> ai_service : 获取memoryId
+ai_service -> ai_service : 构造systemMessage
+ai_service -> ai_service : 构造userMessage
+group rag流程，重写userMessage
+ai_service -> ai_service
+end
+alt 大模型支持jsonSchema && 非流式输出
+ai_service -> ai_service : 根据方法返回类型构造jsonSchema
+end
+alt （大模型不支持jsonSchema && 非流式输出）|| （jsonSchema为空 && 非流式输出）
+ai_service -> ai_service : 重写userMessage(后面追加期望的返回值类型)
+end
+ai_service -> ai_service : 尝试调用审核模型(如果审核模型存在的话)
+alt 如果流式输出
+ai_service -> ai_service : 创建tokenStream
+ai_service --> usr
+else 如果非流式输出
+alt 如果大模型支持jsonSchema && jsonSchema不为空
+ai_service -> ai_service : 创建responseFormat，由于后续传给大模型
+end
+ai_service -> ai_service : 调用大模型
+ai_service -> ai_service : 获取审核模型结果，如何审核失败报错
+ai_service -> ai_service : 将大模型返回的字符串尝试转换为方法的返回值类型
+ai_service --> usr
+end
+end
+@enduml
